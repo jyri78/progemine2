@@ -3,26 +3,21 @@ const database = require('../database');
 const gradesService = {};
 
 
-gradesService.getGradesByStudentId = (id) => {
-    const sid = id - 1;
-    if (!database.students[sid] || !database.grades[sid]) return false;
-    else {
-        const grades = database.grades[sid];
-        const courses = {};
-        grades.grades.forEach((grade) => {
-            courses[database.courses[grade.course_id - 1].name] = grade.grades
-        });
-        return {
-            sid: sid,
-            student_name: database.students[sid].name,
-            grades: courses
-        };
-    }
+gradesService.getGradesByStudentId = (sid) => {
+    const id = sid - 1;
+    const grades_data = database.grades[id];
+    const student_name = database.students[id]?.name;
+    if (!student_name || !grades_data) return false;
+    const grades_by_courses = {};
+    grades_data.grades.forEach((grade) => {
+        grades_by_courses[database.courses[grade.course_id - 1]?.name] = grade.grades
+    });
+    return {sid, student_name, grades_by_courses};
 };
 
-gradesService.patchGradesByStudentId = (id, body) => {
-    const sid = id - 1;
-    if (!database.students[sid] || !database.grades[sid]) this.default(req, res);
+gradesService.patchGradesByStudentId = (sid, body) => {
+    const id = sid - 1;
+    if (!database.students[id] || !database.grades[id]) this.default(req, res);
     else {
         // Selle kontrolli osa jätab andmebaasi osa juurde :)
         res.status(200).json({
@@ -32,28 +27,21 @@ gradesService.patchGradesByStudentId = (id, body) => {
     }
 };
 
-gradesService.deleteGradesByStudentId = (id) => {
-    const sid = id - 1;
-    if (!database.grades[sid]) return false;
-    else {
-        database.grades.splice(sid, 1);
-        return true;
-    }
+gradesService.deleteGradesByStudentId = (sid) => {
+    const id = sid - 1;
+
+    if (!database.grades[id]) return false;
+    else database.grades.splice(id, 1);
+    return true;
 };
 
 gradesService.getAllGrades = () => {
-    const result = [];
-    database.grades.forEach(grades => {
-        const student = database.students[grades.sid - 1].name;
-        const courses = {};
-        grades.grades.forEach((grade) => {
-            courses[database.courses[grade.course_id - 1].name] = grade.grades
-        });
-        result.push({sid: grades.sid, student_name: student, grades_by_courses: courses});
+    const grades = [];
+
+    database.grades.forEach(student => {
+        grades.push(gradesService.getGradesByStudentId(student.sid));
     });
-    return {
-        grades: result
-    };
+    return {grades};
 };
 
 gradesService.postGrades = (body) => {

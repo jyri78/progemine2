@@ -7,109 +7,96 @@ const coursesService = {};
 // Helper function to return course data
 const _get_course = (cid) => {
     const course = database.courses[cid];
+    const course_id = course.id;
     const teacher = database.teachers[course.teacher_id - 1].name;
     const students = [];
+
     course.students.forEach((student) => {
         students.push(database.students[student - 1].name);
     });
-    return {
-        course_id: course.id,
-        teacher: teacher,
-        students: students
-    };
+    return {course_id, teacher, students};
 };
 
 
-coursesService.getCourseById = (id) => {
-    const cid = id - 1;
-    if (!database.courses[cid]) return false;
-    else
-        return {
-            course: _get_course(cid)
-        };
-};
+coursesService.getCourseById = (cid) => {
+    const id = cid - 1;
 
-coursesService.patchCourseById = (id, body) => {
-    const cid = id - 1;
-    if (!database.courses[cid]) return false;
+    if (!database.courses[id]) return false;
     else {
-        let name = database.courses[cid].name;
-        if (body.name) name = body.name;
+        const course = _get_course(id);
+        return {course};
+    }
+};
 
-        // Allows to omit teacher information, then it remains same,
-        // but if the teacher is not in the database, then accepts only the name
-        let tid = database.courses[cid].teacher_id;
-        if (body.teacher_id || body.teacher) {
-            tid = body.teacher_id;
-            if (!tid) tid = functions.get_id(database.teachers, body.teacher);
-            else if (!database.teachers[tid - 1]) tid = 0;  //  invalid ID not allowed
+coursesService.patchCourseById = (cid, body) => {
+    const id = cid - 1;
+    let name = database.courses[id]?.name;
 
-            if (!tid) {  // new teacher (requires a name to be entered)
-                if (body.teacher) {
-                    tid = database.teachers.length + 1;
-                    database.teachers.push({
-                        id: tid,
-                        name: body.teacher
-                    });
-                }
-                else return {error: '400 Bad Request', message: 'No acceptable teacher data is given'};
+    if (!name) return false;
+    if (body.name) name = body.name;
+
+    // Allows to omit teacher information, then it remains same,
+    // but if the teacher is not in the database, then accepts only the name
+    let teacher_id = database.courses[id].teacher_id;
+
+    if (body.teacher_id || body.teacher) {
+        teacher_id = body.teacher_id;
+
+        if (!teacher_id) teacher_id = functions.get_id(database.teachers, body.teacher?.trim());
+        else if (!database.teachers[teacher_id - 1]) teacher_id = 0;  //  invalid ID not allowed
+
+        if (!teacher_id) {  // new teacher (requires a name to be entered)
+            if (body.teacher) {
+                teacher_id = database.teachers.length + 1;
+
+                database.teachers.push({
+                    id: teacher_id,
+                    name: body.teacher.trim()
+                });
             }
+            else return {error: '400 Bad Request', message: 'No acceptable teacher data is given'};
         }
+    }
 
-        let student_ids = [];
-        if (body.students) body.students.forEach(student => {
+    let students = [];
+
+    if (body.students)
+        body.students.forEach(student => {
+            student = student.trim();
             let sid = functions.get_id(database.students, student);
+
             if (!sid) {
                 if (isNaN(parseInt(student))) {  // ignores numeric value
                     sid = database.students.length + 1;
-                    database.students.push({
-                        id: sid,
-                        name: student
-                    });
+                    database.students.push({id:sid, name:student});
                 }
             }
-            if (sid) student_ids.push(sid);
-        });
-        else student_ids = database.courses[cid].students;
 
-        database.courses[cid] = {
-            id: id,
-            name: name,
-            teacher_id: tid,
-            students: student_ids
-        }
-        return {
-            course: _get_course(cid)
-        };
-    }
+            if (sid) students.push(sid);
+        });
+    else students = database.courses[id].students;
+
+    database.courses[id] = {id:cid, name, teacher_id, students}
+
+    const course = _get_course(id);
+    return {course};
 };
 
-coursesService.deleteCourseById = (id) => {
-    const cid = id - 1;
-    if (!database.courses[cid]) return false;
-    else {
-        database.courses.splice(cid, 1);
-        return true;
-    }
+coursesService.deleteCourseById = (cid) => {
+    const id = cid - 1;
+
+    if (!database.courses[id]) return false;
+    else database.courses.splice(id, 1);
+    return true;
 };
 
 coursesService.getCourses = () => {
     const courses = [];
+
     database.courses.forEach(course => {
-        const teacher = database.teachers[course.teacher_id - 1].name;
-        const students = [];
-        course.students.forEach((student) => {
-            students.push(database.students[student - 1].name);
-        });
-        courses.push({
-            course_id: course.id,
-            teacher: teacher,
-            students: students
-        });
+        courses.push(coursesService.getCourseById(course.id));
     });
-    return {
-        courses: courses
-    };
+    return {courses};
 };
 
 coursesService.postCourse = (body) => {
@@ -122,40 +109,31 @@ coursesService.postCourse = (body) => {
     const new_id = database.courses.length + 1;
 
     // Looks for existing teacher
-    let tid = functions.get_id(database.teachers, teacher);
+    let teacher_id = functions.get_id(database.teachers, teacher);
 
-    if (!tid) {  // new teacher
-        tid = database.teachers.length + 1;
-        database.teachers.push({
-            id: tid,
-            name: teacher
-        });
+    if (!teacher_id) {  // new teacher
+        teacher_id = database.teachers.length + 1;
+        database.teachers.push({id:teacher_id, name:teacher});
     }
 
-    let student_ids = [];
-    if (body.students) body.students.forEach(student => {
-        let sid = functions.get_id(database.students, student);
-        if (!sid) {
-            if (isNaN(parseInt(student))) {
-                sid = database.students.length + 1;
-                database.students.push({
-                    id: sid,
-                    name: student
-                });
-            }
-        }
-        if (sid) student_ids.push(sid);
-    });
+    let students = [];
+    if (body.students)
+        body.students.forEach(student => {
+            let sid = functions.get_id(database.students, student);
 
-    database.courses.push({
-        id: new_id,
-        name: name,
-        teacher_id: tid,
-        students: student_ids
-    });
-    return {
-        course: _get_course(new_id - 1)
-    };
+            if (!sid) {
+                if (isNaN(parseInt(student))) {
+                    sid = database.students.length + 1;
+                    database.students.push({id:sid, name:student});
+                }
+            }
+            if (sid) students.push(sid);
+        });
+
+    database.courses.push({id:new_id, name, teacher_id, students});
+
+    const course = _get_course(new_id - 1);
+    return {course};
 };
 
 

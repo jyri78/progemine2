@@ -4,58 +4,54 @@ const functions = require('../functions');
 const teachersService = {};
 
 
-teachersService.getTeacherById = (id) => {
-    const tid = id - 1;
-    if (!database.teachers[tid]) return false;
-    else
-        return {
-            teacher: database.teachers[tid]
-        };
+teachersService.getTeacherById = (tid) => {
+    const teacher = database.teachers[tid - 1];
+
+    if (!teacher) return false;
+    return {teacher};
 };
 
-teachersService.patchTeacherById = (id, name) => {
-    const tid = id - 1;
-    if (!database.teachers[tid]) false;
+teachersService.patchTeacherById = (tid, name) => {
+    const id = tid - 1;
+
+    if (!name?.trim()) return {error: '400 Bad Request', message: 'Name is missing'};
     else {
-        if (!name || !name.trim()) return {error: '400 Bad Request', message: 'Name is missing'};
-        else {
-            const old_name = database.teachers[tid].name;
-            database.teachers[tid].name = name.trim();
-            return {
-                tid: id,
-                old_name: old_name,
-                new_name: name.trim()
-            };
-        }
+        const old_name = database.teachers[id]?.name;
+        const new_name = name.trim();
+
+        if (!old_name) return false;
+        if (old_name == new_name) return {error: '400 Bad Request', message: 'Name is same, nothing to change'};
+
+        database.teachers[id].name = new_name;
+        return {tid, old_name, new_name};
     }
 };
 
-teachersService.deleteTeacherById = (id) => {
-    const tid = id - 1;
-    if (!database.teachers[tid]) return false;
-    else {
-        database.teachers.splice(tid, 1);
-        return true;
-    }
+teachersService.deleteTeacherById = (tid) => {
+    const id = tid - 1;
+
+    if (!database.teachers[id]) return false;
+    else database.teachers.splice(id, 1);
+    return true;
 };
 
 teachersService.getTeachers = () => {
-    return {
-        teachers: database.teachers
-    };
+    const teachers = database.teachers;
+    return {teachers};
 };
 
 teachersService.postTeacher = (name) => {
-    if (!name || !name.trim()) return {error: '400 Bad Request', message: 'Name is missing'};
-    name = name.trim();
-    if (functions.get_id(database.teachers, name)) return {error: '400 Bad Request', message: 'Name is already in teachers database'};
+    name = name?.trim();
+
+    if (!name) return {error: '400 Bad Request', message: 'Name is missing'};
+
+    if (functions.get_id(database.teachers, name))
+        return {error: '400 Bad Request', message: 'Name is already in teachers database'};
     else {
         const id = database.teachers.length + 1;
-        database.teachers.push({
-            id: id,
-            name: name
-        });
-        return {id: id};
+
+        database.teachers.push({id, name});
+        return {id};
     }
 };
 
