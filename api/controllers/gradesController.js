@@ -25,7 +25,7 @@ gradesController.getAllGrades = (req, res) => {
 };
 
 gradesController.postGrades = (req, res) => {
-    const grade = gradesService.postGrade(req.body);
+    const grade = gradesService.postGrades(req.body);
     functions.send_result(req, res, grade, 201);
 };
 

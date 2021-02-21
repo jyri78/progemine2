@@ -1,4 +1,5 @@
 const database = require('../database');
+const functions = require('../functions');
 
 const gradesService = {};
 
@@ -17,14 +18,26 @@ gradesService.getGradesByStudentId = (sid) => {
 
 gradesService.patchGradesByStudentId = (sid, body) => {
     const id = sid - 1;
-    if (!database.students[id] || !database.grades[id]) this.default(req, res);
-    else {
-        // Selle kontrolli osa jätab andmebaasi osa juurde :)
-        res.status(200).json({
-            message: 'Data changed',
-            data: body
-        });
+
+    if (!database.students[id] || !database.grades[id]) return false;
+
+    let course_id = body?.course_id;
+    const grades = body?.grades;
+
+    if (!course_id) course_id = functions.get_id(database.courses, body?.course?.trim());
+    if (!course_id) return {error: '400 Bad Request', message: 'Course ID/name is missing'};
+    if (!grades) return {error: '400 Bad Request', message: 'Grades is/are missing'};
+
+    if (database.grades[id].grades[course_id - 1]) {
+        if (Array.isArray(grades)) database.grades[id].grades[course_id - 1].grades = grades;
+        else database.grades[id].grades[course_id - 1].grades.push(grades);
     }
+    else {
+        if (!Array.isArray(grades)) grades = [grades];
+        database.grades[id].grades.push({course_id, grades});
+    }
+
+    return gradesService.getGradesByStudentId(sid);
 };
 
 gradesService.deleteGradesByStudentId = (sid) => {
@@ -45,11 +58,29 @@ gradesService.getAllGrades = () => {
 };
 
 gradesService.postGrades = (body) => {
-    // Selle kontrolli osa jätab andmebaasi osa juurde :)
-    return {
-        message: 'Data added',
-        data: body
-    };
+    let sid = body?.student_id;
+
+    if (!sid) functions.get_id(database.students, body?.student?.trim());
+    if (!sid) return {error: '400 Bad Request', message: 'Course ID/name is missing'};
+
+    const id = sid - 1;
+    if (!database.students[id]) return {error: '400 Bad Request', message: 'Student does not exist'};
+
+    let course_id = body?.course_id;
+    const grades = body?.grades;
+
+    if (!course_id) course_id = functions.get_id(database.courses, body?.course?.trim());
+    if (!course_id) return {error: '400 Bad Request', message: 'Course ID/name is missing'};
+
+    if (database.grades[id].grades[course_id - 1])
+        return {error: '400 Bad Request', message: 'Users course is already in database'};
+
+    if (!grades) return {error: '400 Bad Request', message: 'Grades is/are missing'};
+
+    if (!Array.isArray(grades)) grades = [grades];
+    database.grades[id].grades.push({course_id, grades});
+
+    return gradesService.getGradesByStudentId(sid);
 };
 
 
