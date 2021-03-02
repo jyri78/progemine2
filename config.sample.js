@@ -7,6 +7,13 @@ const config = {
             '':  ['', ['get', 'post']],
         },
     }
+    database: {
+        host: 'localhost',
+        port: 3306,
+        user: '',
+        pwd: '',
+        db: ''
+    }
 }
 
 module.exports = config;

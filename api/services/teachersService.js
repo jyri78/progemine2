@@ -13,10 +13,13 @@ teachersService.getTeacherById = (tid) => {
 
 teachersService.patchTeacherById = (tid, name) => {
     const id = tid - 1;
+    if (name) name = name.trim();
 
-    if (!name?.trim()) return {error: '400 Bad Request', message: 'Name is missing'};
+    //if (!name?.trim()) return {error: '400 Bad Request', message: 'Name is missing'};
+    if (!name) return {error: '400 Bad Request', message: 'Name is missing'};
     else {
-        const old_name = database.teachers[id]?.name;
+        //const old_name = database.teachers[id]?.name;
+        const old_name = (!database.teachers[id] ? '' : database.teachers[id].name);
         const new_name = name.trim();
 
         if (!old_name) return false;
@@ -41,7 +44,8 @@ teachersService.getTeachers = () => {
 };
 
 teachersService.postTeacher = (name) => {
-    name = name?.trim();
+    //name = name?.trim();
+    name = (!name ? '' : name.trim());
 
     if (!name) return {error: '400 Bad Request', message: 'Name is missing'};
 

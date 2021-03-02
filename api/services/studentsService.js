@@ -13,10 +13,13 @@ studentsService.getStudentById = (sid) => {
 
 studentsService.patchStudentById = (sid, name) => {
     const id = sid - 1;
+    if (name) name = name.trim();
 
-    if (!name?.trim()) return {error: '400 Bad Request', message: 'Name is missing'};
+    //if (!name?.trim()) return {error: '400 Bad Request', message: 'Name is missing'};
+    if (!name) return {error: '400 Bad Request', message: 'Name is missing'};
     else {
-        const old_name = database.students[id]?.name;
+        //const old_name = database.students[id]?.name;
+        const old_name = (!database.students[id] ? '' : database.students[id].name);
         const new_name = name.trim();
 
         if (!old_name) return false;
@@ -41,7 +44,8 @@ studentsService.getStudents = () => {
 };
 
 studentsService.postStudent = (name) => {
-    name = name?.trim();
+    //name = name?.trim();
+    if (name) name = name.trim();
 
     if (!name) return {error: '400 Bad Request', message: 'Name is missing'};
 

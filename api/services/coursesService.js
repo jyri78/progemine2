@@ -30,7 +30,8 @@ coursesService.getCourseById = (cid) => {
 
 coursesService.patchCourseById = (cid, body) => {
     const id = cid - 1;
-    let name = database.courses[id]?.name;
+    //let name = database.courses[id]?.name;
+    let name = (!database.courses[id] ? '' : database.courses[id].name);
 
     if (!name) return false;
     if (body.name) name = body.name;
@@ -42,7 +43,8 @@ coursesService.patchCourseById = (cid, body) => {
     if (body.teacher_id || body.teacher) {
         teacher_id = body.teacher_id;
 
-        if (!teacher_id) teacher_id = functions.get_id(database.teachers, body.teacher?.trim());
+        //if (!teacher_id) teacher_id = functions.get_id(database.teachers, body.teacher?.trim());
+        if (!teacher_id) teacher_id = functions.get_id(database.teachers, (!body.teacher ? '' : body.teacher.trim()));
         else if (!database.teachers[teacher_id - 1]) teacher_id = 0;  //  invalid ID not allowed
 
         if (!teacher_id) {  // new teacher (requires a name to be entered)
