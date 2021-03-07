@@ -20,6 +20,7 @@ gradesService.getGradesByStudentId = (sid) => {
 
     if (!student_name || !grades_data) return false;
     const grades_by_courses = {};
+
     grades_data.grades.forEach((grade) => {
         grades_by_courses[database.courses[grade.course_id - 1]?.name] = grade.grades;
     });
