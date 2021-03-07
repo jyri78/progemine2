@@ -17,10 +17,11 @@ gradesService.getGradesByStudentId = (sid) => {
     const id = sid - 1;
     const grades_data = database.grades[id];
     const student_name = database.students[id]?.name;
+
     if (!student_name || !grades_data) return false;
     const grades_by_courses = {};
     grades_data.grades.forEach((grade) => {
-        grades_by_courses[database.courses[grade.course_id - 1]?.name] = grade.grades
+        grades_by_courses[database.courses[grade.course_id - 1]?.name] = grade.grades;
     });
     return {sid, student_name, grades_by_courses};
 };
