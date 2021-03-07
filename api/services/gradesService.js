@@ -4,6 +4,15 @@ const functions = require('../functions');
 const gradesService = {};
 
 
+gradesService.getAllGrades = () => {
+    const grades = [];
+
+    database.grades.forEach(student => {
+        grades.push(gradesService.getGradesByStudentId(student.sid));
+    });
+    return grades;
+};
+
 gradesService.getGradesByStudentId = (sid) => {
     const id = sid - 1;
     const grades_data = database.grades[id];
@@ -14,6 +23,40 @@ gradesService.getGradesByStudentId = (sid) => {
         grades_by_courses[database.courses[grade.course_id - 1]?.name] = grade.grades
     });
     return {sid, student_name, grades_by_courses};
+};
+
+gradesService.postGrades = (body) => {
+    let sid = body?.student_id;
+
+    if (!sid) functions.get_id(database.students, body?.student?.trim());
+    if (!sid) return {error: '400 Bad Request', message: 'Student ID/name is missing'};
+
+    const id = sid - 1;
+    if (!database.students[id]) return {error: '400 Bad Request', message: 'Student does not exist'};
+
+    let course_id = body?.course_id;
+    const grades = body?.grades;
+
+    if (!course_id) course_id = functions.get_id(database.courses, body?.course?.trim());
+    if (!course_id) return {error: '400 Bad Request', message: 'Course ID/name is missing'};
+
+    if (database.grades[id].grades[course_id - 1])
+        return {error: '400 Bad Request', message: 'Users course is already in database'};
+
+    if (!grades) return {error: '400 Bad Request', message: 'Grades is/are missing'};
+
+    if (!Array.isArray(grades)) grades = [grades];
+    database.grades[id].grades.push({course_id, grades});
+
+    return gradesService.getGradesByStudentId(sid);
+};
+
+gradesService.deleteGradesByStudentId = (sid) => {
+    const id = sid - 1;
+
+    if (!database.grades[id]) return false;
+    else database.grades.splice(id, 1);
+    return true;
 };
 
 gradesService.patchGradesByStudentId = (sid, body) => {
@@ -36,49 +79,6 @@ gradesService.patchGradesByStudentId = (sid, body) => {
         if (!Array.isArray(grades)) grades = [grades];
         database.grades[id].grades.push({course_id, grades});
     }
-
-    return gradesService.getGradesByStudentId(sid);
-};
-
-gradesService.deleteGradesByStudentId = (sid) => {
-    const id = sid - 1;
-
-    if (!database.grades[id]) return false;
-    else database.grades.splice(id, 1);
-    return true;
-};
-
-gradesService.getAllGrades = () => {
-    const grades = [];
-
-    database.grades.forEach(student => {
-        grades.push(gradesService.getGradesByStudentId(student.sid));
-    });
-    return {grades};
-};
-
-gradesService.postGrades = (body) => {
-    let sid = body?.student_id;
-
-    if (!sid) functions.get_id(database.students, body?.student?.trim());
-    if (!sid) return {error: '400 Bad Request', message: 'Course ID/name is missing'};
-
-    const id = sid - 1;
-    if (!database.students[id]) return {error: '400 Bad Request', message: 'Student does not exist'};
-
-    let course_id = body?.course_id;
-    const grades = body?.grades;
-
-    if (!course_id) course_id = functions.get_id(database.courses, body?.course?.trim());
-    if (!course_id) return {error: '400 Bad Request', message: 'Course ID/name is missing'};
-
-    if (database.grades[id].grades[course_id - 1])
-        return {error: '400 Bad Request', message: 'Users course is already in database'};
-
-    if (!grades) return {error: '400 Bad Request', message: 'Grades is/are missing'};
-
-    if (!Array.isArray(grades)) grades = [grades];
-    database.grades[id].grades.push({course_id, grades});
 
     return gradesService.getGradesByStudentId(sid);
 };

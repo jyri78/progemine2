@@ -1,43 +1,32 @@
-const teachersController = require('./controllers/teachersController');
-const studentsController = require('./controllers/studentsController');
-const coursesController = require('./controllers/coursesController');
-const gradesController = require('./controllers/gradesController');
+const {
+    usersController, teachersController, studentsController, coursesController, gradesController 
+} = require('./controllers');
 
-
-exports.logger = (req, res, next) => {
-    console.log(new Date(), req.method, req.url);
-    next();
+const routes_data = {
+    keys: ['user', 'teacher', 'student', 'course'],
+    ids: ['uid', 'tid', 'sid', 'cid'],
+    names: ['User', 'Teacher', 'Student', 'Course'],
+    controllers: [usersController, teachersController, studentsController, coursesController]
 };
 
 
-// Teacher routes
-exports.get_teacher_tid = teachersController.getTeacherById;
-exports.patch_teacher_tid = teachersController.patchTeacherById;
-exports.delete_teacher_tid = teachersController.deleteTeacherById;
+// User, Teacher, Student and Course routes
+routes_data['keys'].forEach((key, index) => {
+    const id = routes_data['ids'][index];
+    const name = routes_data['names'][index];
+    const controller = routes_data['controllers'][index];
 
-exports.get_teacher = teachersController.getTeachers;
-exports.post_teacher = teachersController.postTeacher;
+    exports[`get_${key}_${id}`] = controller[`get${name}ById`];
+    exports[`patch_${key}_${id}`] = controller[`patch${name}ById`];
+    exports[`delete_${key}_${id}`] = controller[`delete${name}ById`];
+    exports[`get_${key}`] = controller[`get${name}s`];
+    exports[`post_${key}`] = controller[`post${name}`];
+});
 
+// User login routers
+exports.post_user_login = usersController.userLogin;
 
-// Student routes
-exports.get_student_sid = studentsController.getStudentById;
-exports.patch_student_sid = studentsController.patchStudentById;
-exports.delete_student_sid = studentsController.deleteStudentById;
-
-exports.get_student = studentsController.getStudents;
-exports.post_student = studentsController.postStudent;
-
-
-// Course routes
-exports.get_course_cid = coursesController.getCourseById;
-exports.patch_course_cid = coursesController.patchCourseById;
-exports.delete_course_cid = coursesController.deleteCourseById;
-
-exports.get_course = coursesController.getCourses;
-exports.post_course = coursesController.postCourse;
-
-
-// Grades routes
+// Grades routes (different from others)
 exports.get_grades_sid = gradesController.getGradesByStudentId;
 exports.patch_grades_sid = gradesController.patchGradesByStudentId;
 exports.delete_grades_sid = gradesController.deleteGradesByStudentId;

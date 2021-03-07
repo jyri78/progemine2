@@ -18,6 +18,15 @@ const _get_course = (cid) => {
 };
 
 
+coursesService.getCourses = () => {
+    const courses = [];
+
+    database.courses.forEach(course => {
+        courses.push(coursesService.getCourseById(course.id));
+    });
+    return courses;
+};
+
 coursesService.getCourseById = (cid) => {
     const id = cid - 1;
 
@@ -26,6 +35,51 @@ coursesService.getCourseById = (cid) => {
         const course = _get_course(id);
         return {course};
     }
+};
+
+coursesService.postCourse = (body) => {
+    // Course name and teacher are mandatory
+    if (!body.name) return {error: '400 Bad Request', message: 'Name is missing'};
+    if (!body.teacher) return {error: '400 Bad Request', message: 'Teacher is missing'};
+
+    const name = body.name;
+    const teacher = body.teacher;
+    const new_id = database.courses.length + 1;
+
+    // Looks for existing teacher
+    let teacher_id = functions.get_id(database.teachers, teacher);
+
+    if (!teacher_id) {  // new teacher
+        teacher_id = database.teachers.length + 1;
+        database.teachers.push({id:teacher_id, name:teacher});
+    }
+
+    let students = [];
+    if (body.students)
+        body.students.forEach(student => {
+            let sid = functions.get_id(database.students, student);
+
+            if (!sid) {
+                if (isNaN(parseInt(student))) {
+                    sid = database.students.length + 1;
+                    database.students.push({id:sid, name:student});
+                }
+            }
+            if (sid) students.push(sid);
+        });
+
+    database.courses.push({id:new_id, name, teacher_id, students});
+
+    const course = _get_course(new_id - 1);
+    return {course};
+};
+
+coursesService.deleteCourseById = (cid) => {
+    const id = cid - 1;
+
+    if (!database.courses[id]) return false;
+    else database.courses.splice(id, 1);
+    return true;
 };
 
 coursesService.patchCourseById = (cid, body) => {
@@ -79,60 +133,6 @@ coursesService.patchCourseById = (cid, body) => {
     database.courses[id] = {id:cid, name, teacher_id, students}
 
     const course = _get_course(id);
-    return {course};
-};
-
-coursesService.deleteCourseById = (cid) => {
-    const id = cid - 1;
-
-    if (!database.courses[id]) return false;
-    else database.courses.splice(id, 1);
-    return true;
-};
-
-coursesService.getCourses = () => {
-    const courses = [];
-
-    database.courses.forEach(course => {
-        courses.push(coursesService.getCourseById(course.id));
-    });
-    return {courses};
-};
-
-coursesService.postCourse = (body) => {
-    // Course name and teacher are mandatory
-    if (!body.name) return {error: '400 Bad Request', message: 'Name is missing'};
-    if (!body.teacher) return {error: '400 Bad Request', message: 'Teacher is missing'};
-
-    const name = body.name;
-    const teacher = body.teacher;
-    const new_id = database.courses.length + 1;
-
-    // Looks for existing teacher
-    let teacher_id = functions.get_id(database.teachers, teacher);
-
-    if (!teacher_id) {  // new teacher
-        teacher_id = database.teachers.length + 1;
-        database.teachers.push({id:teacher_id, name:teacher});
-    }
-
-    let students = [];
-    if (body.students)
-        body.students.forEach(student => {
-            let sid = functions.get_id(database.students, student);
-
-            if (!sid) {
-                if (isNaN(parseInt(student))) {
-                    sid = database.students.length + 1;
-                    database.students.push({id:sid, name:student});
-                }
-            }
-            if (sid) students.push(sid);
-        });
-
-    database.courses.push({id:new_id, name, teacher_id, students});
-
-    const course = _get_course(new_id - 1);
     return {course};
 };
 

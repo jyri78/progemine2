@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/jyri78/progemine2#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "bcrypt": "^5.0.1",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1"
   }
 }
