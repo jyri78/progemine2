@@ -11,6 +11,7 @@ const isLoggedIn = async (req, res, next) => {
     if (!payload) return res.status(401).json({error: '401 Unauthorized', message: 'You are unauthorized to see/change content'});
     req.userId = payload.id;
     req.userRole = payload.role;
+    req.userGroup = payload.group;
     if (!req.params?.uid) req.params.uid = payload.id;
     next();
 };

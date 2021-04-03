@@ -11,9 +11,9 @@ const gradesController = {};
  * Optional values: none
  * Success: status 200 - OK and list of grades
  */
-gradesController.getAllGrades = (req, res) => {
-    const grades = gradesService.getAllGrades();
-    res.status(200).json({grades});
+gradesController.getAllGrades = async (req, res) => {
+    const grades = await gradesService.getAllGrades(req);
+    functions.send_result(req, res, grades);
 };
 
 /**
@@ -24,8 +24,8 @@ gradesController.getAllGrades = (req, res) => {
  * Success: status 200 - OK and list of course data
  * Error: status 404 - Not Found and error message
  */
-gradesController.getGradesByStudentId = (req, res) => {
-    const grades = gradesService.getGradesByStudentId(req.params.sid);
+gradesController.getGradesByStudentId = async (req, res) => {
+    const grades = await gradesService.getGradesByStudentId(req.params.sid);
     functions.send_result(req, res, grades);
 };
 
@@ -37,8 +37,8 @@ gradesController.getGradesByStudentId = (req, res) => {
  * Success: status 201 - Created and list of created course data
  * Error: status 400 - Bad Request and error message
  */
-gradesController.postGrades = (req, res) => {
-    const grade = gradesService.postGrades(req.body);
+gradesController.postGrades = async (req, res) => {
+    const grade = await gradesService.postGrades(req);
     functions.send_result(req, res, grade, 201);
 };
 
@@ -50,9 +50,9 @@ gradesController.postGrades = (req, res) => {
  * Success: status 204 - No Content
  * Error: status 404 - Not Found and error message
  */
-gradesController.deleteGradesByStudentId = (req, res) => {
-    const grade = gradesService.deleteGradesByStudentId(req.params.sid);
-    functions.send_result(req, res, grade, 204, true);
+gradesController.deleteGradesByStudentId = async (req, res) => {
+    const grade = await gradesService.deleteGradesByStudentId(req.params.sid, req.body);
+    functions.send_result(req, res, grade, 204);
 };
 
 /**
@@ -61,10 +61,10 @@ gradesController.deleteGradesByStudentId = (req, res) => {
  * Required values: sid, course_id OR course, grades
  * Optional values: course_id, course
  * Success: status 200 - OK and success message
- * Error: status 400 - Bad Request and error message
+ * Error: status 404 - Not Found and error message
  */
-gradesController.patchGradesByStudentId = (req, res) => {
-    const grade = gradesService.patchGradesByStudentId(req.params.sid, req.body);
+gradesController.patchGradesByStudentId = async (req, res) => {
+    const grade = await gradesService.patchGradesByStudentId(req.params.sid, req.body);
     functions.send_result(req, res, grade);
 };
 

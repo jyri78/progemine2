@@ -1,55 +1,65 @@
-const database = require('../database');
-const functions = require('../functions');
+const { getUserLoginData, postUser } = require('./usersService');
+const db = require('../db');
+const { db_error } = require('../functions');
 
 const studentsService = {};
 
 
-studentsService.getStudents = () => database.students;
+studentsService.getStudents = async (req) => {
+    let query = ['SELECT * FROM students WHERE id=$1::int', [req.userId]];
+    if (req.userGroup === 'Admin' || req.userRole === 'Teacher') query = ['SELECT * FROM students'];
 
-studentsService.getStudentById = (sid) => {
-    const student = database.students[sid - 1];
-
-    if (!student) return false;
-    return {student};
-};
-
-studentsService.postStudent = (name) => {
-    name = name?.trim();
-
-    if (!name) return {error: '400 Bad Request', message: 'Name is missing'};
-
-    if (functions.get_id(database.students, name))
-        return {error: '400 Bad Request', message: 'Name is already in students database'};
-    else {
-        const id = database.students.length + 1;
-
-        database.students.push({id, name});
-        return {id};
+    try {
+        const result = await db.query(...query);
+        const students = result?.rows ?? [];
+        return {students};
     }
+    catch (err) { return db_error('getStudents', err); }
 };
 
-studentsService.deleteStudentById = (sid) => {
-    const id = sid - 1;
-
-    if (!database.students[id]) return false;
-    else database.students.splice(id, 1);
-    return true;
-};
-
-studentsService.patchStudentById = (sid, name) => {
-    const id = sid - 1;
-
-    if (!name?.trim()) return {error: '400 Bad Request', message: 'Name is missing'};
-    else {
-        const old_name = database.students[id]?.name;
-        const new_name = name.trim();
-
-        if (!old_name) return false;
-        if (old_name == new_name) return {error: '400 Bad Request', message: 'Name is same, nothing to change'};
-
-        database.students[id].name = new_name;
-        return {sid, old_name, new_name};
+studentsService.getStudentById = async (sid) => {
+    try {
+        const result = await db.query( db.format('SELECT * FROM students WHERE id=%L', sid) );
+        const student = result?.rows[0] ?? {id:0};
+        return {student};
     }
+    catch (err) { return db_error('getStudentById', err); }
+};
+
+studentsService.postStudent = async (newStudent) => {
+    return await postUser(newStudent, 'postStudent');
+};
+
+studentsService.deleteStudentById = async (sid) => {
+    try {
+        const student = await db.query( db.format('SELECT * FROM student_delete(%L)', sid) );
+        if (!student?.rows[0]?.student_delete)
+            return {error: '400 Bad Request', message: 'Student is in at least one course'}
+
+        return true;
+    }
+    catch (err) { return db_error('deleteStudentById', err); }
+};
+
+studentsService.patchStudentById = async (student) => {
+    const student_old_data = (await studentsService.getStudentById(student.sid)).student;
+    const student_pwd = (await getUserLoginData(student_old_data.email)).password;
+
+    const {
+        uid, firstname = student_old_data.firstname, lastname = student_old_data.lastname,
+        password:pwd, email = student_old_data.email } = student;
+
+    if (!pwd) password = student_pwd;
+    else password = await bcrypt.hash(pwd, saltRounds);
+
+    const usr = [uid, firstname, lastname, email, password, 'Student', 'User'];
+    try {
+        const id = await db.query( db.format('SELECT user_patch(%L, %L, %L, %L, %L, %L, %L)', ...usr) );
+
+        if (!id?.rows[0]?.user_patch) return {error: '400 Bad Request', message: 'All data was same, nothing changed'};
+        else return {student_old_data, student_new_data: {firstname, lastname, email, password: '*****'}}
+    }
+    catch (err) { return db_error('patchStudentById', err); }
 };
 
 

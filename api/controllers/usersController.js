@@ -11,9 +11,9 @@ const usersController = {};
  * Optional values: none
  * Success: status 200 - OK and list of users
  */
-usersController.getUsers = (req, res) => {
-    const users = usersService.getUsers(req);
-    res.status(200).json({users});
+usersController.getUsers = async (req, res) => {
+    const users = await usersService.getUsers(req);
+    functions.send_result(req, res, users);
 };
 
 /**
@@ -24,9 +24,9 @@ usersController.getUsers = (req, res) => {
  * Success: status 200 - OK and user with specified id
  * Error: status 404 - Not Found and error message
  */
-usersController.getUserById = (req, res) => {
-  const user = usersService.getUserById(req.params.uid);
-  functions.send_result(req, res, user);
+usersController.getUserById = async (req, res) => {
+    const user = await usersService.getUserById(req.params.uid);
+    functions.send_result(req, res, user);
 };
 
 /**
@@ -65,9 +65,9 @@ usersController.userLogin = async (req, res) => {
  * Success: status 204 - No Content
  * Error: status 404 - Not Found and error message
  */
-usersController.deleteUserById = (req, res) => {
-    const user = usersService.deleteUserById(req.params.uid);
-    functions.send_result(req, res, user, 204, true);
+usersController.deleteUserById = async (req, res) => {
+    const user = await usersService.deleteUserById(req.params.uid);
+    functions.send_result(req, res, user, 204);
 };
 
 /**

@@ -11,9 +11,9 @@ const studentsController = {};
  * Optional values: none
  * Success: status 200 - OK and list of students
  */
-studentsController.getStudents = (req, res) => {
-    const students = studentsService.getStudents();
-    res.status(200).json({students});
+studentsController.getStudents = async (req, res) => {
+    const students = await studentsService.getStudents(req);
+    functions.send_result(req, res, students);
 };
 
 /**
@@ -24,8 +24,8 @@ studentsController.getStudents = (req, res) => {
  * Success: status 200 - OK and list of student data
  * Error: status 404 - Not Found and error message
  */
-studentsController.getStudentById = (req, res) => {
-    const student = studentsService.getStudentById(req.params.sid);
+studentsController.getStudentById = async (req, res) => {
+    const student = await studentsService.getStudentById(req.params.sid);
     functions.send_result(req, res, student);
 };
 
@@ -37,8 +37,8 @@ studentsController.getStudentById = (req, res) => {
  * Success: status 201 - Created and id of created student
  * Error: status 400 - Bad Request and error message
  */
-studentsController.postStudent = (req, res) => {
-    const student = studentsService.postStudent(req.body.name);
+studentsController.postStudent = async (req, res) => {
+    const student = await studentsService.postStudent(req.body);
     functions.send_result(req, res, student, 201);
 };
 
@@ -50,9 +50,9 @@ studentsController.postStudent = (req, res) => {
  * Success: status 204 - No Content
  * Error: status 404 - Not Found and error message
  */
-studentsController.deleteStudentById = (req, res) => {
-    const student = studentsService.deleteStudentById(req.params.sid);
-    functions.send_result(req, res, student, 204, true);
+studentsController.deleteStudentById = async (req, res) => {
+    const student = await studentsService.deleteStudentById(req.params.sid);
+    functions.send_result(req, res, student, 204);
 };
 
 /**
@@ -63,8 +63,8 @@ studentsController.deleteStudentById = (req, res) => {
  * Success: status 200 - OK and success message
  * Error: status 400 - Bad Request and error message
  */
-studentsController.patchStudentById = (req, res) => {
-    const student = studentsService.patchStudentById(req.params.sid, req.body.name);
+studentsController.patchStudentById = async (req, res) => {
+    const student = await studentsService.patchStudentById(req.body);
     functions.send_result(req, res, student);
 };
 

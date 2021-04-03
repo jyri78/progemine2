@@ -23,8 +23,12 @@ routes_data['keys'].forEach((key, index) => {
     exports[`post_${key}`] = controller[`post${name}`];
 });
 
-// User login routers
+// User login route
 exports.post_user_login = usersController.userLogin;
+
+// Course student addition and removing routes
+exports.post_course_cid = coursesController.postCourseById;
+exports.delete_course = coursesController.deleteCourseStudent;
 
 // Grades routes (different from others)
 exports.get_grades_sid = gradesController.getGradesByStudentId;

@@ -11,9 +11,9 @@ const coursesController = {};
  * Optional values: none
  * Success: status 200 - OK and list of courses
  */
-coursesController.getCourses = (req, res) => {
-    const courses = coursesService.getCourses();
-    res.status(200).json({courses});
+coursesController.getCourses = async (req, res) => {
+    const courses = await coursesService.getCourses(req);
+    functions.send_result(req, res, courses);
 };
 
 /**
@@ -24,8 +24,8 @@ coursesController.getCourses = (req, res) => {
  * Success: status 200 - OK and list of course data
  * Error: status 404 - Not Found and error message
  */
-coursesController.getCourseById = (req, res) => {
-    const course = coursesService.getCourseById(req.params.cid);
+coursesController.getCourseById = async (req, res) => {
+    const course = await coursesService.getCourseById(req);
     functions.send_result(req, res, course);
 };
 
@@ -37,9 +37,35 @@ coursesController.getCourseById = (req, res) => {
  * Success: status 201 - Created and list of created course data
  * Error: status 400 - Bad Request and error message
  */
-coursesController.postCourse = (req, res) => {
-    const course = coursesService.postCourse(req.body);
+coursesController.postCourse = async (req, res) => {
+    const course = await coursesService.postCourse(req);
     functions.send_result(req, res, course, 201);
+};
+
+/**
+ * Add student to the course
+ * POST - /api/course/:cid
+ * Required values: student_id OR student_firstname AND student_lastname
+ * Optional values: student_id, student_firstname, student_lastname
+ * Success: status 204 - No Content
+ * Error: status 404 - Not Found and error message
+ */
+ coursesController.postCourseById = async (req, res) => {
+    const course = await coursesService.postCourseById(req);
+    functions.send_result(req, res, course, 204);
+};
+
+/**
+ * Remove student from course
+ * DELETE - /api/course
+ * Required values: course_id, student_id OR student_firstname AND student_lastname
+ * Optional values: student_id, student_firstname, student_lastname
+ * Success: status 204 - No Content
+ * Error: status 404 - Not Found and error message
+ */
+ coursesController.deleteCourseStudent = async (req, res) => {
+    const course = await coursesService.deleteCourseStudent(req.body);
+    functions.send_result(req, res, course, 204);
 };
 
 /**
@@ -50,9 +76,9 @@ coursesController.postCourse = (req, res) => {
  * Success: status 204 - No Content
  * Error: status 404 - Not Found and error message
  */
-coursesController.deleteCourseById = (req, res) => {
-    const course = coursesService.deleteCourseById(req.params.cid);
-    functions.send_result(req, res, course, 204, true);
+coursesController.deleteCourseById = async (req, res) => {
+    const course = await coursesService.deleteCourseById(req.params.cid);
+    functions.send_result(req, res, course, 204);
 };
 
 /**
@@ -63,8 +89,8 @@ coursesController.deleteCourseById = (req, res) => {
  * Success: status 200 - OK and success message
  * Error: status 400 - Bad Request and error message
  */
-coursesController.patchCourseById = (req, res) => {
-    const course = coursesService.patchCourseById(req.params.cid, req.body);
+coursesController.patchCourseById = async (req, res) => {
+    const course = await coursesService.patchCourseById(req);
     functions.send_result(req, res, course);
 };
 

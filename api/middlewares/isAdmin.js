@@ -1,6 +1,6 @@
 
 const isAdmin = (req, res, next) => {
-    if (req.userRole !== 'Admin')
+    if (req.userGroup !== 'Admin')
         return res.status(403).json({error: '403 Forbidden', message: 'Admin rights is required for this task'});
 
     next();
