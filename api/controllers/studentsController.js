@@ -10,6 +10,7 @@ const studentsController = {};
  * Required values: none
  * Optional values: none
  * Success: status 200 - OK and list of students
+ * Error: status 403 - Forbidden and errror message
  */
 studentsController.getStudents = async (req, res) => {
     const students = await studentsService.getStudents(req);
@@ -22,6 +23,7 @@ studentsController.getStudents = async (req, res) => {
  * Required values: sid
  * Optional values: none
  * Success: status 200 - OK and list of student data
+ * Error: status 403 - Forbidden and errror message
  * Error: status 404 - Not Found and error message
  */
 studentsController.getStudentById = async (req, res) => {
@@ -36,6 +38,7 @@ studentsController.getStudentById = async (req, res) => {
  * Optional values: none
  * Success: status 201 - Created and id of created student
  * Error: status 400 - Bad Request and error message
+ * Error: status 403 - Forbidden and errror message
  */
 studentsController.postStudent = async (req, res) => {
     const student = await studentsService.postStudent(req.body);
@@ -48,6 +51,7 @@ studentsController.postStudent = async (req, res) => {
  * Required values: sid
  * Optional values: none
  * Success: status 204 - No Content
+ * Error: status 403 - Forbidden and errror message
  * Error: status 404 - Not Found and error message
  */
 studentsController.deleteStudentById = async (req, res) => {
@@ -62,6 +66,7 @@ studentsController.deleteStudentById = async (req, res) => {
  * Optional values: none
  * Success: status 200 - OK and success message
  * Error: status 400 - Bad Request and error message
+ * Error: status 403 - Forbidden and errror message
  */
 studentsController.patchStudentById = async (req, res) => {
     const student = await studentsService.patchStudentById(req.body);

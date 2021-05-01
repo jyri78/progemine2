@@ -31,7 +31,7 @@ usersService.getUserById = async (uid) => {
 usersService.getUserByEmail = async (email) => {
     try {
         const result = await db.query( db.format('SELECT * FROM users WHERE email=%L', email) );
-        const user = result?.rows[0] ?? false;
+        const user = result?.rows[0] ?? {id:0};
         return {user};
     }
     catch (err) { return db_error('getUserByEmail', err); }
@@ -62,13 +62,13 @@ usersService.userLogin = async (user, password) => {
     if (!match) return {errCode: 403, error: '403 Forbidden', message: 'Wrong user password'};
 
     const token = await jwtService.sign(user);
-    return token;
+    return {token};
 };
 
 usersService.deleteUserById = async (uid, funcName = 'deleteUserById') => {
     const usr = await usersService.getUserById(uid);
     if (usr.error) return usr;
-    else if (!usr.user.id)
+    else if (!usr.user?.id)
         return {errCode: 404, error: '404 Not Found', message: 'User not found'}
 
     try {
@@ -82,8 +82,11 @@ usersService.deleteUserById = async (uid, funcName = 'deleteUserById') => {
 };
 
 usersService.patchUserById = async (user) => {
-    const user_old_data = (await usersService.getUserById(user.uid)).user;
-    const user_pwd = (await usersService.getUserLoginData(user_old_data.email)).password;
+    const user_old_data = (await usersService.getUserById(user.uid))?.user;
+    const user_pwd = (await usersService.getUserLoginData(user_old_data.email))?.password;
+
+    if (!user_old_data?.id)
+        return {errCode: 404, error: '404 Not Found', message: 'User not found'}
 
     const {
         uid, firstname = user_old_data.firstname, lastname = user_old_data.lastname,

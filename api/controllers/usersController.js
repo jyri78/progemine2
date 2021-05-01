@@ -10,6 +10,7 @@ const usersController = {};
  * Required values: none
  * Optional values: none
  * Success: status 200 - OK and list of users
+ * Error: status 403 - Forbidden and errror message
  */
 usersController.getUsers = async (req, res) => {
     const users = await usersService.getUsers(req);
@@ -22,6 +23,8 @@ usersController.getUsers = async (req, res) => {
  * Required values: id
  * Optional values: none
  * Success: status 200 - OK and user with specified id
+ * Error: status 401 - Unauthorized and errror message
+ * Error: status 403 - Forbidden and errror message
  * Error: status 404 - Not Found and error message
  */
 usersController.getUserById = async (req, res) => {
@@ -36,6 +39,8 @@ usersController.getUserById = async (req, res) => {
  * Optional values: none
  * Success: status 201 - Created and id of created user
  * Error: status 400 - Bad Request and error message
+ * Error: status 401 - Unauthorized and errror message
+ * Error: status 403 - Forbidden and errror message
  */
 usersController.postUser = async (req, res) => {
     const user = await usersService.postUser(req.body);
@@ -50,6 +55,7 @@ usersController.postUser = async (req, res) => {
  * Success: status 200 - OK and login token
  * Error: status 400 - Bad Request and error message
  * Error: status 403 - Forbidden and errror message
+ * Error: status 404 - Not Found and errror message
  */
 usersController.userLogin = async (req, res) => {
     const { user, password } = req.body;
@@ -63,6 +69,7 @@ usersController.userLogin = async (req, res) => {
  * Required values: uid
  * Optional values: none
  * Success: status 204 - No Content
+ * Error: status 403 - Forbidden and errror message
  * Error: status 404 - Not Found and error message
  */
 usersController.deleteUserById = async (req, res) => {
@@ -77,6 +84,7 @@ usersController.deleteUserById = async (req, res) => {
  * Optional values: firstName, lastName
  * Success: status 200 - OK and success message
  * Error: status 400 - Bad Request and error message
+ * Error: status 404 - Not Found and error message
  */
 usersController.patchUserById = async (req, res) => {
     const user = await usersService.patchUserById(req.body);

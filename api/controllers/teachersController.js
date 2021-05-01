@@ -10,6 +10,7 @@ const teachersController = {};
  * Required values: none
  * Optional values: none
  * Success: status 200 - OK and list of teachers
+ * Error: status 403 - Forbidden and errror message
  */
 teachersController.getTeachers = async (req, res) => {
     const teachers = await teachersService.getTeachers(req);
@@ -22,6 +23,7 @@ teachersController.getTeachers = async (req, res) => {
  * Required values: tid
  * Optional values: none
  * Success: status 200 - OK and list of teacher data
+ * Error: status 403 - Forbidden and errror message
  * Error: status 404 - Not Found and error message
  */
 teachersController.getTeacherById = async (req, res) => {
@@ -36,6 +38,7 @@ teachersController.getTeacherById = async (req, res) => {
  * Optional values: none
  * Success: status 201 - Created and id of created teacher
  * Error: status 400 - Bad Request and error message
+ * Error: status 403 - Forbidden and errror message
  */
 teachersController.postTeacher = async (req, res) => {
     const teacher = await teachersService.postTeacher(req.body);
@@ -48,6 +51,7 @@ teachersController.postTeacher = async (req, res) => {
  * Required values: tid
  * Optional values: none
  * Success: status 204 - No Content
+ * Error: status 403 - Forbidden and errror message
  * Error: status 404 - Not Found and error message
  */
 teachersController.deleteTeacherById = async (req, res) => {
@@ -62,6 +66,7 @@ teachersController.deleteTeacherById = async (req, res) => {
  * Optional values: none
  * Success: status 200 - OK and success message
  * Error: status 400 - Bad Request and error message
+ * Error: status 403 - Forbidden and errror message
  */
 teachersController.patchTeacherById = async (req, res) => {
     const teacher = await teachersService.patchTeacherById(req.body);

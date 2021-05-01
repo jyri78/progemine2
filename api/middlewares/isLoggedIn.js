@@ -3,7 +3,7 @@ const isLoggedIn = async (req, res, next) => {
     //process.chdir('./api/middlewares');
     const { jwtService } = require('../services');
 
-    if (!req.headers.authorization)
+    if (!req.headers?.authorization)
         return res.status(403).json({error: '403 Forbidden', message: 'Authorization header is missing'});
 
     const token = req.headers.authorization.split(' ')[1];

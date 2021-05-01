@@ -36,6 +36,7 @@ coursesController.getCourseById = async (req, res) => {
  * Optional values: none
  * Success: status 201 - Created and list of created course data
  * Error: status 400 - Bad Request and error message
+ * Error: status 403 - Forbidden and errror message
  */
 coursesController.postCourse = async (req, res) => {
     const course = await coursesService.postCourse(req);
@@ -48,6 +49,7 @@ coursesController.postCourse = async (req, res) => {
  * Required values: student_id OR student_firstname AND student_lastname
  * Optional values: student_id, student_firstname, student_lastname
  * Success: status 204 - No Content
+ * Error: status 403 - Forbidden and errror message
  * Error: status 404 - Not Found and error message
  */
  coursesController.postCourseById = async (req, res) => {
@@ -61,6 +63,7 @@ coursesController.postCourse = async (req, res) => {
  * Required values: course_id, student_id OR student_firstname AND student_lastname
  * Optional values: student_id, student_firstname, student_lastname
  * Success: status 204 - No Content
+ * Error: status 403 - Forbidden and errror message
  * Error: status 404 - Not Found and error message
  */
  coursesController.deleteCourseStudent = async (req, res) => {
@@ -74,6 +77,7 @@ coursesController.postCourse = async (req, res) => {
  * Required values: cid
  * Optional values: none
  * Success: status 204 - No Content
+ * Error: status 403 - Forbidden and errror message
  * Error: status 404 - Not Found and error message
  */
 coursesController.deleteCourseById = async (req, res) => {
@@ -88,6 +92,7 @@ coursesController.deleteCourseById = async (req, res) => {
  * Optional values: teacher_id, teacher, students
  * Success: status 200 - OK and success message
  * Error: status 400 - Bad Request and error message
+ * Error: status 403 - Forbidden and errror message
  */
 coursesController.patchCourseById = async (req, res) => {
     const course = await coursesService.patchCourseById(req);

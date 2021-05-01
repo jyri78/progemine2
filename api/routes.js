@@ -23,8 +23,9 @@ routes_data['keys'].forEach((key, index) => {
     exports[`post_${key}`] = controller[`post${name}`];
 });
 
-// User login route
+// User login and update route
 exports.post_user_login = usersController.userLogin;
+exports.patch_user = usersController.patchUserById;  // validator sets ID for logged in user
 
 // Course student addition and removing routes
 exports.post_course_cid = coursesController.postCourseById;
@@ -41,5 +42,5 @@ exports.post_grades = gradesController.postGrades;
 
 // Default route (Not Fount error)
 exports.default = (req, res) => {
-    res.status(404).json({error: '404 Not Found', url: req.originalUrl, method: req.method});
+    res.status(404).json({error: '404 Not Found', message: 'Unknown API route', url: req.originalUrl, method: req.method});
 }

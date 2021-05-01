@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "mocha --timeout 11000 --exit",
+    "coverage": "nyc npm run test"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,11 @@
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.5.1",
     "pg-format": "^1.0.4"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^8.3.2",
+    "nyc": "^15.1.0",
+    "supertest": "^6.1.3"
   }
 }

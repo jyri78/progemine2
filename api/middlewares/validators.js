@@ -9,12 +9,12 @@ validators.createUser = async (req, res, next) => {
     firstname = firstname?.trim();
     lastname = lastname?.trim();
     email = email?.trim();
-    password = password?.trim();
+    password = password?.trim()
 
     if (!firstname || !lastname || !email || !password)
         return res.status(400).json({error: '400 Bad Request', message: 'Firstname, lastname, email or password is missing'});
 
-    if (!/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(email))  // just basic validation (not RFC 2822 standard)
+    if (!/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/.test(email))  // just basic validation (not RFC 2822 standard)
         return res.status(400).json({error: '400 Bad Request', message: 'Invalid email'});
 
     const user_check = await getUserByEmail(email);
@@ -66,7 +66,7 @@ validators.deleteUser = async (req, res, next) => {
 
 validators.updateUser = async (req, res, next) => {
     let { firstname, lastname, password, email, role, group } = req.body;
-    let uid = req.params?.uid ?? 0;
+    let uid = req.params?.uid ?? req.userId;  // defaults to logged in user ID
     const { getUserByEmail } = require('../services/usersService');
     const roles = ['Teacher', 'Student', 'Guest'];
     const groups = ['Admin', 'User'];
@@ -86,8 +86,6 @@ validators.updateUser = async (req, res, next) => {
     else if (!firstname && !lastname && !email && !role && !group)
         return res.status(400).json({error: '400 Bad Request', message: 'Firstname, lastname, email, role and group all are missing'});
 
-    if (!uid) uid = req.userId;
-
     if (email) {
         const user_check = await getUserByEmail(email);
         if (user_check?.user)
@@ -96,10 +94,10 @@ validators.updateUser = async (req, res, next) => {
 
     req.body = [];  // reset body (ignore all other data)
     req.body.uid = uid;
-    req.body.firstname = firstname;
-    req.body.lastname = lastname;
-    if (isUser) req.body.password = password;  // only user can change password
-    req.body.email = email;
+    if (firstname) req.body.firstname = firstname;
+    if (lastname) req.body.lastname = lastname;
+    if (isUser && password) req.body.password = password;  // only user can change password
+    if (email) req.body.email = email;
     if (isAdmin) {  // only admin can change user role and user group
         if (role && roles.indexOf(role) == -1) role = 'Guest';
         if (group && groups.indexOf(group) == -1) group = 'User';
